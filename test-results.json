@@ -1,0 +1,5295 @@
+{
+  "collection": {
+    "item": [
+      {
+        "id": "5a75f828-b9f2-4e83-9472-815d075d601c",
+        "name": "1. Create note (201)",
+        "request": {
+          "url": {
+            "path": [
+              "notes"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Exam topics\",\n  \"body\": \"Hooks, Express, REST\",\n  \"tags\": [\"exam\", \"week9\"]\n}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "929a43f9-8bc7-45b1-a953-d0e9aea8a661",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                "const note = pm.response.json();",
+                "pm.test('Returns the note with an _id', () => pm.expect(note._id).to.be.a('string'));",
+                "pm.test('Title is saved', () => pm.expect(note.title).to.eql('Exam topics'));",
+                "pm.collectionVariables.set('noteId', note._id);"
+              ],
+              "_lastExecutionId": "8c19b754-3879-41f8-959f-0040f5c2181e"
+            }
+          }
+        ]
+      },
+      {
+        "id": "c224b556-22fe-4caf-a954-c79686784d6b",
+        "name": "2. Create note without title (400)",
+        "request": {
+          "url": {
+            "path": [
+              "notes"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"body\": \"no title here\"\n}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "30b8446f-b9bf-4038-b07f-f760f9f28446",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('title is required'));"
+              ],
+              "_lastExecutionId": "4731c9ff-c421-470b-b2bd-53d2d5a0025d"
+            }
+          }
+        ]
+      },
+      {
+        "id": "df997e4a-f637-405c-940a-b4fe6b811769",
+        "name": "3. Create note with malformed JSON (400)",
+        "request": {
+          "url": {
+            "path": [
+              "notes"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{ \"title\": \"oops\" "
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "11ffce4d-6ed6-4f7e-b63b-70a2005f461f",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Malformed JSON body'));"
+              ],
+              "_lastExecutionId": "99b1b920-af84-4fff-8504-d04413e33a3f"
+            }
+          }
+        ]
+      },
+      {
+        "id": "62cec894-3597-4bb4-a98d-4f0a06dcb022",
+        "name": "4. List all notes (200)",
+        "request": {
+          "url": {
+            "path": [
+              "notes"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "ca33a27b-aa69-41cb-a90c-fa07df43da66",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                "pm.test('Returns an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+              ],
+              "_lastExecutionId": "3fa17c9f-4c39-43d7-a25a-38fcd0a42d89"
+            }
+          }
+        ]
+      },
+      {
+        "id": "e0727a69-8a2a-4861-afb3-e34745e96c51",
+        "name": "5. Search notes by title (200)",
+        "request": {
+          "url": {
+            "path": [
+              "notes"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [
+              {
+                "key": "search",
+                "value": "exam"
+              }
+            ],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "d86e98d2-059d-4566-b808-5373ae43b42a",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                "pm.test('Every result matches the search', () => pm.response.json().forEach(n => pm.expect(n.title.toLowerCase()).to.include('exam')));"
+              ],
+              "_lastExecutionId": "41332ca9-dbd9-4506-bf5c-1f565f1d643e"
+            }
+          }
+        ]
+      },
+      {
+        "id": "153671f2-8873-47a3-80a5-eb1a9514fa09",
+        "name": "6. Get one note (200)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{noteId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "c43d1321-a7c8-449e-bec2-fe528ea46dbd",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                "pm.test('Right note', () => pm.expect(pm.response.json()._id).to.eql(pm.collectionVariables.get('noteId')));"
+              ],
+              "_lastExecutionId": "1d272a08-5df7-4a7f-b59e-264c9f72620e"
+            }
+          }
+        ]
+      },
+      {
+        "id": "d0d8103d-bb04-4f16-ac39-9f80c34036a6",
+        "name": "7. Get note with invalid id (400)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "abc"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "8c2df89e-4afe-403b-bf48-a71a2d2de2dc",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Invalid id'));"
+              ],
+              "_lastExecutionId": "91d63c1a-931c-416b-82ca-f2f5cc6d1644"
+            }
+          }
+        ]
+      },
+      {
+        "id": "c4fb7271-56bf-4300-8ce2-5bc1aa37bdbe",
+        "name": "8. Get note that does not exist (404)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{missingId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "7a8ea9a7-82f1-4adb-ac49-35925a41f246",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Note not found'));"
+              ],
+              "_lastExecutionId": "3af645c1-e8a2-44aa-8655-16bfaeb3bb1d"
+            }
+          }
+        ]
+      },
+      {
+        "id": "57e5bb85-9f3f-416f-89d5-ba1dc30864b8",
+        "name": "9. Update note with PATCH (200)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{noteId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Exam topics v2\"\n}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "9bb2c087-4045-45ff-a8c4-6d2d90d6f7e7",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                "const note = pm.response.json();",
+                "pm.test('Title changed', () => pm.expect(note.title).to.eql('Exam topics v2'));",
+                "pm.test('Body kept', () => pm.expect(note.body).to.eql('Hooks, Express, REST'));"
+              ],
+              "_lastExecutionId": "56e1e4ed-5678-4ace-9967-2342c11c0941"
+            }
+          }
+        ]
+      },
+      {
+        "id": "9116a217-cdde-4ac3-9147-5cae726a5cb2",
+        "name": "10. PATCH with empty title (400)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{noteId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"   \"\n}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "20b4454f-a4ce-4054-a9ff-3abbd0d63169",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                "pm.test('Has an error message', () => pm.expect(pm.response.json().error).to.be.a('string'));"
+              ],
+              "_lastExecutionId": "b6113013-6128-4c84-86fa-a6501c780df4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fd3e8d17-15e1-4f4c-83d7-d50914ae6ee9",
+        "name": "11. Replace note with PUT (200)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{noteId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Final exam plan\",\n  \"body\": \"Revise sessions 16 to 18\"\n}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "1b273ecd-97f6-4d22-a583-596ef1b50341",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                "const note = pm.response.json();",
+                "pm.test('Title replaced', () => pm.expect(note.title).to.eql('Final exam plan'));",
+                "pm.test('Missing tags reset to []', () => pm.expect(note.tags).to.eql([]));"
+              ],
+              "_lastExecutionId": "33d8e899-5af8-48c1-8089-d21359ce920a"
+            }
+          }
+        ]
+      },
+      {
+        "id": "bddd8ec8-9a3b-421a-a371-915dd47c4293",
+        "name": "12. PUT without title (400)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{noteId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"body\": \"only a body\"\n}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "534f2453-6493-474f-a378-1a0a3ec793b0",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('title is required'));"
+              ],
+              "_lastExecutionId": "b5bf636c-21ef-4ac4-9d93-a6301e84831a"
+            }
+          }
+        ]
+      },
+      {
+        "id": "e2433880-4945-493a-b5e8-b9064d9c9fa3",
+        "name": "13. PUT on a note that does not exist (404)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{missingId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Ghost\"\n}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "629ccf6c-4c32-4e42-a80f-88770089c58b",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 404', () => pm.response.to.have.status(404));"
+              ],
+              "_lastExecutionId": "56970cf7-5de2-41ce-a177-2532048f58ca"
+            }
+          }
+        ]
+      },
+      {
+        "id": "31bb406c-c541-4e4e-9de2-c771f15ae70d",
+        "name": "14. Delete note (204)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{noteId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "DELETE"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "8101e05c-1975-4980-9fd4-d7e30de63c71",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 204', () => pm.response.to.have.status(204));",
+                "pm.test('No body', () => pm.expect(pm.response.text()).to.eql(''));"
+              ],
+              "_lastExecutionId": "cd9f952b-a6ec-4974-9514-3c52ead9707d"
+            }
+          }
+        ]
+      },
+      {
+        "id": "95cd9027-d8f2-4701-bdf8-05558012fdb9",
+        "name": "15. Delete the same note again (404)",
+        "request": {
+          "url": {
+            "path": [
+              "notes",
+              "{{noteId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "DELETE"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "27eaab12-76ec-46ac-9a4c-811757e8ddac",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Note not found'));"
+              ],
+              "_lastExecutionId": "94f869ba-956b-4d89-83ae-176d10291f5e"
+            }
+          }
+        ]
+      },
+      {
+        "id": "a32ebe8f-0292-4dad-b4a8-bdc1b6a5e3cb",
+        "name": "16. Unknown route (404)",
+        "request": {
+          "url": {
+            "path": [
+              "nothing-here"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "d54cab9b-4256-49ea-b2b7-c1ca2a0ec3f4",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Route not found'));"
+              ],
+              "_lastExecutionId": "a165e707-a193-4aff-9fb5-8cc6e9202c8e"
+            }
+          }
+        ]
+      }
+    ],
+    "event": [],
+    "variable": [
+      {
+        "type": "any",
+        "value": "http://localhost:3000/api",
+        "key": "baseUrl"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "noteId"
+      },
+      {
+        "type": "any",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaa",
+        "key": "missingId"
+      }
+    ],
+    "info": {
+      "_postman_id": "38c20d8c-fa0b-4fea-86b8-4db29c07a972",
+      "name": "Notes API - Assignment 6",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "description": {
+        "content": "Every route of the Notes REST API, with success and error cases. Run the requests in order (or use Run collection): 'Create note' saves the new note's id into the noteId variable used by later requests.",
+        "type": "text/plain"
+      }
+    }
+  },
+  "environment": {
+    "id": "72f85a6d-ea53-461e-b71f-a5136f068a7e",
+    "values": []
+  },
+  "globals": {
+    "id": "df579cae-aae5-4956-9304-58f464e7e513",
+    "values": []
+  },
+  "run": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 16,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 16,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 16,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 16,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 16,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 34,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 16,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 0,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "timings": {
+      "responseAverage": 192,
+      "responseMin": 2,
+      "responseMax": 401,
+      "responseSd": 150.47425028887835,
+      "dnsAverage": 0,
+      "dnsMin": 0,
+      "dnsMax": 0,
+      "dnsSd": 0,
+      "firstByteAverage": 0,
+      "firstByteMin": 0,
+      "firstByteMax": 0,
+      "firstByteSd": 0,
+      "started": 1794242328209,
+      "completed": 1794242331522
+    },
+    "executions": [
+      {
+        "cursor": {
+          "position": 0,
+          "iteration": 0,
+          "length": 16,
+          "cycles": 1,
+          "empty": false,
+          "eof": false,
+          "bof": true,
+          "cr": false,
+          "ref": "c6402c66-9921-4f43-804b-548e1da0f638",
+          "httpRequestId": "fd70a1af-2465-4e52-9406-88af4460c052"
+        },
+        "item": {
+          "id": "5a75f828-b9f2-4e83-9472-815d075d601c",
+          "name": "1. Create note (201)",
+          "request": {
+            "url": {
+              "path": [
+                "notes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Exam topics\",\n  \"body\": \"Hooks, Express, REST\",\n  \"tags\": [\"exam\", \"week9\"]\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "929a43f9-8bc7-45b1-a953-d0e9aea8a661",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const note = pm.response.json();",
+                  "pm.test('Returns the note with an _id', () => pm.expect(note._id).to.be.a('string'));",
+                  "pm.test('Title is saved', () => pm.expect(note.title).to.eql('Exam topics'));",
+                  "pm.collectionVariables.set('noteId', note._id);"
+                ],
+                "_lastExecutionId": "8c19b754-3879-41f8-959f-0040f5c2181e"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "f9bbab33-6858-455e-beca-68973a95741b",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "91",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Exam topics\",\n  \"body\": \"Hooks, Express, REST\",\n  \"tags\": [\"exam\", \"week9\"]\n}"
+          }
+        },
+        "response": {
+          "id": "904dd740-faaa-45c5-a8b0-c4bdf58a5079",
+          "status": "Created",
+          "code": 201,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "196"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"c4-U7WGHz6YNpX63eUFv6GH72S2Jxw\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:48 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              69,
+              120,
+              97,
+              109,
+              32,
+              116,
+              111,
+              112,
+              105,
+              99,
+              115,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              72,
+              111,
+              111,
+              107,
+              115,
+              44,
+              32,
+              69,
+              120,
+              112,
+              114,
+              101,
+              115,
+              115,
+              44,
+              32,
+              82,
+              69,
+              83,
+              84,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              34,
+              101,
+              120,
+              97,
+              109,
+              34,
+              44,
+              34,
+              119,
+              101,
+              101,
+              107,
+              57,
+              34,
+              93,
+              44,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              102,
+              55,
+              49,
+              56,
+              52,
+              48,
+              56,
+              53,
+              51,
+              48,
+              56,
+              51,
+              100,
+              49,
+              56,
+              48,
+              101,
+              99,
+              52,
+              56,
+              34,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 328,
+          "responseSize": 196
+        },
+        "id": "5a75f828-b9f2-4e83-9472-815d075d601c",
+        "assertions": [
+          {
+            "assertion": "Status is 201",
+            "skipped": false
+          },
+          {
+            "assertion": "Returns the note with an _id",
+            "skipped": false
+          },
+          {
+            "assertion": "Title is saved",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "97a7cbaa-d3dc-4da3-9cdb-2323294d67be",
+          "length": 16,
+          "cycles": 1,
+          "position": 1,
+          "iteration": 0,
+          "httpRequestId": "32e63363-ae9f-4710-b1d7-08934f7ed6e3"
+        },
+        "item": {
+          "id": "c224b556-22fe-4caf-a954-c79686784d6b",
+          "name": "2. Create note without title (400)",
+          "request": {
+            "url": {
+              "path": [
+                "notes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"no title here\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "30b8446f-b9bf-4038-b07f-f760f9f28446",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('title is required'));"
+                ],
+                "_lastExecutionId": "4731c9ff-c421-470b-b2bd-53d2d5a0025d"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "f4b7d555-8b06-48c6-b149-ea0a9e20f0d5",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "29",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"body\": \"no title here\"\n}"
+          }
+        },
+        "response": {
+          "id": "ceda5afb-70ab-440f-a3db-a35651b0d435",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "29"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"1d-BHjTL76dE6GIMaUT52SMpArStwA\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:48 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              32,
+              105,
+              115,
+              32,
+              114,
+              101,
+              113,
+              117,
+              105,
+              114,
+              101,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 2,
+          "responseSize": 29
+        },
+        "id": "c224b556-22fe-4caf-a954-c79686784d6b",
+        "assertions": [
+          {
+            "assertion": "Status is 400",
+            "skipped": false
+          },
+          {
+            "assertion": "JSON error message",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "a36b81ec-cdba-4a97-9407-65369cc0c1d0",
+          "length": 16,
+          "cycles": 1,
+          "position": 2,
+          "iteration": 0,
+          "httpRequestId": "d50b5e94-98a5-4187-b38e-17a9259e7b15"
+        },
+        "item": {
+          "id": "df997e4a-f637-405c-940a-b4fe6b811769",
+          "name": "3. Create note with malformed JSON (400)",
+          "request": {
+            "url": {
+              "path": [
+                "notes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"oops\" "
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "11ffce4d-6ed6-4f7e-b63b-70a2005f461f",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Malformed JSON body'));"
+                ],
+                "_lastExecutionId": "99b1b920-af84-4fff-8504-d04413e33a3f"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "0c23bcdd-1427-4773-9be0-639e6a7ae33e",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "18",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{ \"title\": \"oops\" "
+          }
+        },
+        "response": {
+          "id": "5f6e1c41-0200-440a-8249-7e08142d370f",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "31"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"1f-mmbNKNr5+JE5unTdzNmIUtedyt8\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:48 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              77,
+              97,
+              108,
+              102,
+              111,
+              114,
+              109,
+              101,
+              100,
+              32,
+              74,
+              83,
+              79,
+              78,
+              32,
+              98,
+              111,
+              100,
+              121,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 2,
+          "responseSize": 31
+        },
+        "id": "df997e4a-f637-405c-940a-b4fe6b811769",
+        "assertions": [
+          {
+            "assertion": "Status is 400",
+            "skipped": false
+          },
+          {
+            "assertion": "JSON error message",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "e6dccc98-3234-49d5-8e03-1c51c086daf1",
+          "length": 16,
+          "cycles": 1,
+          "position": 3,
+          "iteration": 0,
+          "httpRequestId": "5e9429e0-1754-460d-aca0-86142ce82e3d"
+        },
+        "item": {
+          "id": "62cec894-3597-4bb4-a98d-4f0a06dcb022",
+          "name": "4. List all notes (200)",
+          "request": {
+            "url": {
+              "path": [
+                "notes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ca33a27b-aa69-41cb-a90c-fa07df43da66",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "_lastExecutionId": "3fa17c9f-4c39-43d7-a25a-38fcd0a42d89"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "2220e0b4-91be-446e-82e1-61a67c29290a",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "36c2376d-505c-4d83-b954-f1bd1ed8c5e4",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "387"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"183-v5MsC78DIxidP6QVDpE4QbcOSZo\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:48 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              91,
+              123,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              102,
+              55,
+              49,
+              56,
+              52,
+              48,
+              56,
+              53,
+              51,
+              48,
+              56,
+              51,
+              100,
+              49,
+              56,
+              48,
+              101,
+              99,
+              52,
+              56,
+              34,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              69,
+              120,
+              97,
+              109,
+              32,
+              116,
+              111,
+              112,
+              105,
+              99,
+              115,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              72,
+              111,
+              111,
+              107,
+              115,
+              44,
+              32,
+              69,
+              120,
+              112,
+              114,
+              101,
+              115,
+              115,
+              44,
+              32,
+              82,
+              69,
+              83,
+              84,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              34,
+              101,
+              120,
+              97,
+              109,
+              34,
+              44,
+              34,
+              119,
+              101,
+              101,
+              107,
+              57,
+              34,
+              93,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125,
+              44,
+              123,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              56,
+              51,
+              100,
+              101,
+              50,
+              101,
+              55,
+              97,
+              55,
+              52,
+              56,
+              51,
+              99,
+              100,
+              49,
+              102,
+              53,
+              48,
+              102,
+              100,
+              34,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              69,
+              120,
+              97,
+              109,
+              32,
+              116,
+              111,
+              112,
+              105,
+              99,
+              115,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              72,
+              111,
+              111,
+              107,
+              115,
+              44,
+              32,
+              69,
+              120,
+              112,
+              114,
+              101,
+              115,
+              115,
+              44,
+              32,
+              82,
+              69,
+              83,
+              84,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              34,
+              101,
+              120,
+              97,
+              109,
+              34,
+              93,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              48,
+              56,
+              58,
+              50,
+              55,
+              58,
+              49,
+              48,
+              46,
+              52,
+              50,
+              52,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              48,
+              56,
+              58,
+              50,
+              55,
+              58,
+              49,
+              48,
+              46,
+              52,
+              50,
+              52,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125,
+              93
+            ]
+          },
+          "cookie": [],
+          "responseTime": 272,
+          "responseSize": 387
+        },
+        "id": "62cec894-3597-4bb4-a98d-4f0a06dcb022",
+        "assertions": [
+          {
+            "assertion": "Status is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Returns an array",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "fc67ea95-8cdb-4cdd-ae03-e830669b055e",
+          "length": 16,
+          "cycles": 1,
+          "position": 4,
+          "iteration": 0,
+          "httpRequestId": "c2f8e11f-58de-48e0-bb2b-68aaed3ff9c9"
+        },
+        "item": {
+          "id": "e0727a69-8a2a-4861-afb3-e34745e96c51",
+          "name": "5. Search notes by title (200)",
+          "request": {
+            "url": {
+              "path": [
+                "notes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "exam"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d86e98d2-059d-4566-b808-5373ae43b42a",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Every result matches the search', () => pm.response.json().forEach(n => pm.expect(n.title.toLowerCase()).to.include('exam')));"
+                ],
+                "_lastExecutionId": "41332ca9-dbd9-4506-bf5c-1f565f1d643e"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [
+              {
+                "key": "search",
+                "value": "exam"
+              }
+            ],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "ba63ff0e-c25a-48cb-b2b9-d2732e9281b2",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "41f92b1d-90b8-42f9-8e79-51674708732f",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "387"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"183-v5MsC78DIxidP6QVDpE4QbcOSZo\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:49 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              91,
+              123,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              102,
+              55,
+              49,
+              56,
+              52,
+              48,
+              56,
+              53,
+              51,
+              48,
+              56,
+              51,
+              100,
+              49,
+              56,
+              48,
+              101,
+              99,
+              52,
+              56,
+              34,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              69,
+              120,
+              97,
+              109,
+              32,
+              116,
+              111,
+              112,
+              105,
+              99,
+              115,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              72,
+              111,
+              111,
+              107,
+              115,
+              44,
+              32,
+              69,
+              120,
+              112,
+              114,
+              101,
+              115,
+              115,
+              44,
+              32,
+              82,
+              69,
+              83,
+              84,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              34,
+              101,
+              120,
+              97,
+              109,
+              34,
+              44,
+              34,
+              119,
+              101,
+              101,
+              107,
+              57,
+              34,
+              93,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125,
+              44,
+              123,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              56,
+              51,
+              100,
+              101,
+              50,
+              101,
+              55,
+              97,
+              55,
+              52,
+              56,
+              51,
+              99,
+              100,
+              49,
+              102,
+              53,
+              48,
+              102,
+              100,
+              34,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              69,
+              120,
+              97,
+              109,
+              32,
+              116,
+              111,
+              112,
+              105,
+              99,
+              115,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              72,
+              111,
+              111,
+              107,
+              115,
+              44,
+              32,
+              69,
+              120,
+              112,
+              114,
+              101,
+              115,
+              115,
+              44,
+              32,
+              82,
+              69,
+              83,
+              84,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              34,
+              101,
+              120,
+              97,
+              109,
+              34,
+              93,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              48,
+              56,
+              58,
+              50,
+              55,
+              58,
+              49,
+              48,
+              46,
+              52,
+              50,
+              52,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              48,
+              56,
+              58,
+              50,
+              55,
+              58,
+              49,
+              48,
+              46,
+              52,
+              50,
+              52,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125,
+              93
+            ]
+          },
+          "cookie": [],
+          "responseTime": 270,
+          "responseSize": 387
+        },
+        "id": "e0727a69-8a2a-4861-afb3-e34745e96c51",
+        "assertions": [
+          {
+            "assertion": "Status is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Every result matches the search",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "95aa398d-5c56-4dcc-954a-86c6b2d9ee8e",
+          "length": 16,
+          "cycles": 1,
+          "position": 5,
+          "iteration": 0,
+          "httpRequestId": "ad83c79c-8bd0-4a69-970c-7091b0b774ed"
+        },
+        "item": {
+          "id": "153671f2-8873-47a3-80a5-eb1a9514fa09",
+          "name": "6. Get one note (200)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{noteId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "c43d1321-a7c8-449e-bec2-fe528ea46dbd",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Right note', () => pm.expect(pm.response.json()._id).to.eql(pm.collectionVariables.get('noteId')));"
+                ],
+                "_lastExecutionId": "1d272a08-5df7-4a7f-b59e-264c9f72620e"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "6af1f71840853083d180ec48"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "b41a932e-7b0e-4646-ad8b-80d0ab9f2255",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "35cdf384-0a37-4e0d-be35-f4126175ad8a",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "196"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"c4-KzbFN0kJHgfaotyJZdo2JCuzBBI\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:49 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              102,
+              55,
+              49,
+              56,
+              52,
+              48,
+              56,
+              53,
+              51,
+              48,
+              56,
+              51,
+              100,
+              49,
+              56,
+              48,
+              101,
+              99,
+              52,
+              56,
+              34,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              69,
+              120,
+              97,
+              109,
+              32,
+              116,
+              111,
+              112,
+              105,
+              99,
+              115,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              72,
+              111,
+              111,
+              107,
+              115,
+              44,
+              32,
+              69,
+              120,
+              112,
+              114,
+              101,
+              115,
+              115,
+              44,
+              32,
+              82,
+              69,
+              83,
+              84,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              34,
+              101,
+              120,
+              97,
+              109,
+              34,
+              44,
+              34,
+              119,
+              101,
+              101,
+              107,
+              57,
+              34,
+              93,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 293,
+          "responseSize": 196
+        },
+        "id": "153671f2-8873-47a3-80a5-eb1a9514fa09",
+        "assertions": [
+          {
+            "assertion": "Status is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Right note",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "aa834eeb-2bf7-4f9c-acbb-ad36f32894c2",
+          "length": 16,
+          "cycles": 1,
+          "position": 6,
+          "iteration": 0,
+          "httpRequestId": "cdc7e983-264e-4edd-b2c3-0120cc341d85"
+        },
+        "item": {
+          "id": "d0d8103d-bb04-4f16-ac39-9f80c34036a6",
+          "name": "7. Get note with invalid id (400)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "abc"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8c2df89e-4afe-403b-bf48-a71a2d2de2dc",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Invalid id'));"
+                ],
+                "_lastExecutionId": "91d63c1a-931c-416b-82ca-f2f5cc6d1644"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "abc"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "fdd9e7d7-8bde-4f41-9dca-17e6a670622f",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "d25291de-fd06-4801-8ef5-ba9c901be4be",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "22"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"16-HvxzzVYLEXteKjq0hMYNikFu544\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:49 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              73,
+              110,
+              118,
+              97,
+              108,
+              105,
+              100,
+              32,
+              105,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 4,
+          "responseSize": 22
+        },
+        "id": "d0d8103d-bb04-4f16-ac39-9f80c34036a6",
+        "assertions": [
+          {
+            "assertion": "Status is 400",
+            "skipped": false
+          },
+          {
+            "assertion": "JSON error message",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "fe68afb2-b5bb-4396-95a1-6b8d905f5b63",
+          "length": 16,
+          "cycles": 1,
+          "position": 7,
+          "iteration": 0,
+          "httpRequestId": "534bc5d9-9e14-48a3-9f65-dbf6584ba1a4"
+        },
+        "item": {
+          "id": "c4fb7271-56bf-4300-8ce2-5bc1aa37bdbe",
+          "name": "8. Get note that does not exist (404)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{missingId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "7a8ea9a7-82f1-4adb-ac49-35925a41f246",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Note not found'));"
+                ],
+                "_lastExecutionId": "3af645c1-e8a2-44aa-8655-16bfaeb3bb1d"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "aaaaaaaaaaaaaaaaaaaaaaaa"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "90f5a780-0439-4a90-a9b9-ce48c25144ed",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "0fecded4-0552-4a31-91e9-0dc3592c9b36",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "26"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"1a-BUgGXblavowehTiscymo67SSQug\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:49 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              78,
+              111,
+              116,
+              101,
+              32,
+              110,
+              111,
+              116,
+              32,
+              102,
+              111,
+              117,
+              110,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 273,
+          "responseSize": 26
+        },
+        "id": "c4fb7271-56bf-4300-8ce2-5bc1aa37bdbe",
+        "assertions": [
+          {
+            "assertion": "Status is 404",
+            "skipped": false
+          },
+          {
+            "assertion": "JSON error message",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "9ad64053-1337-4d2e-a4d8-6fce5ed57cbe",
+          "length": 16,
+          "cycles": 1,
+          "position": 8,
+          "iteration": 0,
+          "httpRequestId": "df2f31f1-d23c-461d-b206-1ecde41f58ce"
+        },
+        "item": {
+          "id": "57e5bb85-9f3f-416f-89d5-ba1dc30864b8",
+          "name": "9. Update note with PATCH (200)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{noteId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Exam topics v2\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9bb2c087-4045-45ff-a8c4-6d2d90d6f7e7",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const note = pm.response.json();",
+                  "pm.test('Title changed', () => pm.expect(note.title).to.eql('Exam topics v2'));",
+                  "pm.test('Body kept', () => pm.expect(note.body).to.eql('Hooks, Express, REST'));"
+                ],
+                "_lastExecutionId": "56e1e4ed-5678-4ace-9967-2342c11c0941"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "6af1f71840853083d180ec48"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "72fd5fed-3710-4225-84ff-d0b069d81ff6",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "31",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Exam topics v2\"\n}"
+          }
+        },
+        "response": {
+          "id": "4fe1b82d-3fe0-4153-8958-93da25f39f13",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "199"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"c7-BUK7ZoWLOSVdr5A2Xkzv+KzD2ZA\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              102,
+              55,
+              49,
+              56,
+              52,
+              48,
+              56,
+              53,
+              51,
+              48,
+              56,
+              51,
+              100,
+              49,
+              56,
+              48,
+              101,
+              99,
+              52,
+              56,
+              34,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              69,
+              120,
+              97,
+              109,
+              32,
+              116,
+              111,
+              112,
+              105,
+              99,
+              115,
+              32,
+              118,
+              50,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              72,
+              111,
+              111,
+              107,
+              115,
+              44,
+              32,
+              69,
+              120,
+              112,
+              114,
+              101,
+              115,
+              115,
+              44,
+              32,
+              82,
+              69,
+              83,
+              84,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              34,
+              101,
+              120,
+              97,
+              109,
+              34,
+              44,
+              34,
+              119,
+              101,
+              101,
+              107,
+              57,
+              34,
+              93,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              57,
+              46,
+              55,
+              56,
+              50,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 401,
+          "responseSize": 199
+        },
+        "id": "57e5bb85-9f3f-416f-89d5-ba1dc30864b8",
+        "assertions": [
+          {
+            "assertion": "Status is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Title changed",
+            "skipped": false
+          },
+          {
+            "assertion": "Body kept",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "d5b2b3d3-b855-4aca-8983-001581dd5c3f",
+          "length": 16,
+          "cycles": 1,
+          "position": 9,
+          "iteration": 0,
+          "httpRequestId": "14cd9c05-6fa6-4414-b605-6bf2f544fb7d"
+        },
+        "item": {
+          "id": "9116a217-cdde-4ac3-9147-5cae726a5cb2",
+          "name": "10. PATCH with empty title (400)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{noteId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"   \"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "20b4454f-a4ce-4054-a9ff-3abbd0d63169",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Has an error message', () => pm.expect(pm.response.json().error).to.be.a('string'));"
+                ],
+                "_lastExecutionId": "b6113013-6128-4c84-86fa-a6501c780df4"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "6af1f71840853083d180ec48"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "1e4e7ae0-7479-40bb-be7a-05ae2be975fe",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "20",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"   \"\n}"
+          }
+        },
+        "response": {
+          "id": "1e7c411e-87c5-464f-9f73-0c9d1aa55961",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "63"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"3f-0iJcUnfQfysh4/cTgcmZrm3Y4DQ\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              86,
+              97,
+              108,
+              105,
+              100,
+              97,
+              116,
+              105,
+              111,
+              110,
+              32,
+              102,
+              97,
+              105,
+              108,
+              101,
+              100,
+              58,
+              32,
+              116,
+              105,
+              116,
+              108,
+              101,
+              58,
+              32,
+              80,
+              97,
+              116,
+              104,
+              32,
+              96,
+              116,
+              105,
+              116,
+              108,
+              101,
+              96,
+              32,
+              105,
+              115,
+              32,
+              114,
+              101,
+              113,
+              117,
+              105,
+              114,
+              101,
+              100,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 5,
+          "responseSize": 63
+        },
+        "id": "9116a217-cdde-4ac3-9147-5cae726a5cb2",
+        "assertions": [
+          {
+            "assertion": "Status is 400",
+            "skipped": false
+          },
+          {
+            "assertion": "Has an error message",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "7663a9ac-fea7-4f61-8df6-91a23405f988",
+          "length": 16,
+          "cycles": 1,
+          "position": 10,
+          "iteration": 0,
+          "httpRequestId": "c3494a01-7e77-45b4-af11-5e2b6a47d098"
+        },
+        "item": {
+          "id": "fd3e8d17-15e1-4f4c-83d7-d50914ae6ee9",
+          "name": "11. Replace note with PUT (200)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{noteId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Final exam plan\",\n  \"body\": \"Revise sessions 16 to 18\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "1b273ecd-97f6-4d22-a583-596ef1b50341",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const note = pm.response.json();",
+                  "pm.test('Title replaced', () => pm.expect(note.title).to.eql('Final exam plan'));",
+                  "pm.test('Missing tags reset to []', () => pm.expect(note.tags).to.eql([]));"
+                ],
+                "_lastExecutionId": "33d8e899-5af8-48c1-8089-d21359ce920a"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "6af1f71840853083d180ec48"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "62fb0ac3-e8d2-4c36-82e0-361af5604a10",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "70",
+              "system": true
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Final exam plan\",\n  \"body\": \"Revise sessions 16 to 18\"\n}"
+          }
+        },
+        "response": {
+          "id": "ba50053a-8061-4074-b8fb-1676985d33bc",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "190"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"be-58rYhPRXsgsbsqTzTfzNRMqTrbI\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              54,
+              97,
+              102,
+              49,
+              102,
+              55,
+              49,
+              56,
+              52,
+              48,
+              56,
+              53,
+              51,
+              48,
+              56,
+              51,
+              100,
+              49,
+              56,
+              48,
+              101,
+              99,
+              52,
+              56,
+              34,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              70,
+              105,
+              110,
+              97,
+              108,
+              32,
+              101,
+              120,
+              97,
+              109,
+              32,
+              112,
+              108,
+              97,
+              110,
+              34,
+              44,
+              34,
+              98,
+              111,
+              100,
+              121,
+              34,
+              58,
+              34,
+              82,
+              101,
+              118,
+              105,
+              115,
+              101,
+              32,
+              115,
+              101,
+              115,
+              115,
+              105,
+              111,
+              110,
+              115,
+              32,
+              49,
+              54,
+              32,
+              116,
+              111,
+              32,
+              49,
+              56,
+              34,
+              44,
+              34,
+              116,
+              97,
+              103,
+              115,
+              34,
+              58,
+              91,
+              93,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              52,
+              56,
+              46,
+              50,
+              53,
+              57,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              48,
+              57,
+              84,
+              49,
+              54,
+              58,
+              51,
+              56,
+              58,
+              53,
+              48,
+              46,
+              50,
+              49,
+              56,
+              90,
+              34,
+              44,
+              34,
+              95,
+              95,
+              118,
+              34,
+              58,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 368,
+          "responseSize": 190
+        },
+        "id": "fd3e8d17-15e1-4f4c-83d7-d50914ae6ee9",
+        "assertions": [
+          {
+            "assertion": "Status is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Title replaced",
+            "skipped": false
+          },
+          {
+            "assertion": "Missing tags reset to []",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "6ae6175b-3870-4518-9e70-b6ba19207981",
+          "length": 16,
+          "cycles": 1,
+          "position": 11,
+          "iteration": 0,
+          "httpRequestId": "648927ba-7600-44a3-89a5-4e177d94b444"
+        },
+        "item": {
+          "id": "bddd8ec8-9a3b-421a-a371-915dd47c4293",
+          "name": "12. PUT without title (400)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{noteId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"only a body\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "534f2453-6493-474f-a378-1a0a3ec793b0",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('title is required'));"
+                ],
+                "_lastExecutionId": "b5bf636c-21ef-4ac4-9d93-a6301e84831a"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "6af1f71840853083d180ec48"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "727bb0a9-b9ed-4df5-83e3-0f8bc02d21c9",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "27",
+              "system": true
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"body\": \"only a body\"\n}"
+          }
+        },
+        "response": {
+          "id": "b4f415fc-0296-4e9a-9df0-733f6f96bf98",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "29"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"1d-BHjTL76dE6GIMaUT52SMpArStwA\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              32,
+              105,
+              115,
+              32,
+              114,
+              101,
+              113,
+              117,
+              105,
+              114,
+              101,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 3,
+          "responseSize": 29
+        },
+        "id": "bddd8ec8-9a3b-421a-a371-915dd47c4293",
+        "assertions": [
+          {
+            "assertion": "Status is 400",
+            "skipped": false
+          },
+          {
+            "assertion": "JSON error message",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "96253785-2882-4221-9ac3-fa6bb1577169",
+          "length": 16,
+          "cycles": 1,
+          "position": 12,
+          "iteration": 0,
+          "httpRequestId": "0eb218a3-8735-485b-831c-32c720b4e6b6"
+        },
+        "item": {
+          "id": "e2433880-4945-493a-b5e8-b9064d9c9fa3",
+          "name": "13. PUT on a note that does not exist (404)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{missingId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ghost\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "629ccf6c-4c32-4e42-a80f-88770089c58b",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));"
+                ],
+                "_lastExecutionId": "56970cf7-5de2-41ce-a177-2532048f58ca"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "aaaaaaaaaaaaaaaaaaaaaaaa"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "5dd9daa9-fe4d-4559-9f04-142d3ee4f016",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "22",
+              "system": true
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Ghost\"\n}"
+          }
+        },
+        "response": {
+          "id": "45bfd98e-cae3-4b08-8c3f-ecc0144aa877",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "26"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"1a-BUgGXblavowehTiscymo67SSQug\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              78,
+              111,
+              116,
+              101,
+              32,
+              110,
+              111,
+              116,
+              32,
+              102,
+              111,
+              117,
+              110,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 263,
+          "responseSize": 26
+        },
+        "id": "e2433880-4945-493a-b5e8-b9064d9c9fa3",
+        "assertions": [
+          {
+            "assertion": "Status is 404",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "903e8f0d-410c-4cb3-998f-0cac5a94985b",
+          "length": 16,
+          "cycles": 1,
+          "position": 13,
+          "iteration": 0,
+          "httpRequestId": "98b428df-5ccd-49db-a2a1-982e70007a7e"
+        },
+        "item": {
+          "id": "31bb406c-c541-4e4e-9de2-c771f15ae70d",
+          "name": "14. Delete note (204)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{noteId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "DELETE"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8101e05c-1975-4980-9fd4-d7e30de63c71",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', () => pm.response.to.have.status(204));",
+                  "pm.test('No body', () => pm.expect(pm.response.text()).to.eql(''));"
+                ],
+                "_lastExecutionId": "cd9f952b-a6ec-4974-9514-3c52ead9707d"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "6af1f71840853083d180ec48"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "b4e4307f-2915-487c-9bfc-e00b5189a882",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "DELETE"
+        },
+        "response": {
+          "id": "9e31a357-4996-4889-ad26-da944b46a47c",
+          "status": "No Content",
+          "code": 204,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": []
+          },
+          "cookie": [],
+          "responseTime": 311,
+          "responseSize": 0
+        },
+        "id": "31bb406c-c541-4e4e-9de2-c771f15ae70d",
+        "assertions": [
+          {
+            "assertion": "Status is 204",
+            "skipped": false
+          },
+          {
+            "assertion": "No body",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "ef2b37cd-2aab-4560-b8a4-3d474577a8c4",
+          "length": 16,
+          "cycles": 1,
+          "position": 14,
+          "iteration": 0,
+          "httpRequestId": "37404c4a-1a5d-4a29-8a4a-124300b51a3f"
+        },
+        "item": {
+          "id": "95cd9027-d8f2-4701-bdf8-05558012fdb9",
+          "name": "15. Delete the same note again (404)",
+          "request": {
+            "url": {
+              "path": [
+                "notes",
+                "{{noteId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "DELETE"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "27eaab12-76ec-46ac-9a4c-811757e8ddac",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Note not found'));"
+                ],
+                "_lastExecutionId": "94f869ba-956b-4d89-83ae-176d10291f5e"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "notes",
+              "6af1f71840853083d180ec48"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "0357cc9a-73f9-4fd8-be03-f49e332c7ad5",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "DELETE"
+        },
+        "response": {
+          "id": "e54d0b76-257a-4cd2-84b4-177746cfd792",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "26"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"1a-BUgGXblavowehTiscymo67SSQug\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              78,
+              111,
+              116,
+              101,
+              32,
+              110,
+              111,
+              116,
+              32,
+              102,
+              111,
+              117,
+              110,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 274,
+          "responseSize": 26
+        },
+        "id": "95cd9027-d8f2-4701-bdf8-05558012fdb9",
+        "assertions": [
+          {
+            "assertion": "Status is 404",
+            "skipped": false
+          },
+          {
+            "assertion": "JSON error message",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "6e67b803-84aa-46ac-be8e-dc638d01e098",
+          "length": 16,
+          "cycles": 1,
+          "position": 15,
+          "iteration": 0,
+          "httpRequestId": "e3d835f2-3102-494e-ab78-a2ddf05bec53"
+        },
+        "item": {
+          "id": "a32ebe8f-0292-4dad-b4a8-bdc1b6a5e3cb",
+          "name": "16. Unknown route (404)",
+          "request": {
+            "url": {
+              "path": [
+                "nothing-here"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d54cab9b-4256-49ea-b2b7-c1ca2a0ec3f4",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON error message', () => pm.expect(pm.response.json().error).to.eql('Route not found'));"
+                ],
+                "_lastExecutionId": "a165e707-a193-4aff-9fb5-8cc6e9202c8e"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "api",
+              "nothing-here"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "d9471dd4-2ee3-4db1-a1a5-ff07932a9c08",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "9f1fd081-cf96-4ff1-99b3-ca1559de3218",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "27"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"1b-772e0u4nrE48ogbR0KmKfSvrHUE\""
+            },
+            {
+              "key": "Date",
+              "value": "Mon, 09 Nov 2026 16:38:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              82,
+              111,
+              117,
+              116,
+              101,
+              32,
+              110,
+              111,
+              116,
+              32,
+              102,
+              111,
+              117,
+              110,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 3,
+          "responseSize": 27
+        },
+        "id": "a32ebe8f-0292-4dad-b4a8-bdc1b6a5e3cb",
+        "assertions": [
+          {
+            "assertion": "Status is 404",
+            "skipped": false
+          },
+          {
+            "assertion": "JSON error message",
+            "skipped": false
+          }
+        ]
+      }
+    ],
+    "transfers": {
+      "responseTotal": 1834
+    },
+    "failures": [],
+    "error": null
+  }
+}

@@ -3,6 +3,12 @@
 A RESTful API for **notes**, built with **Node.js**, **Express** and **MongoDB** (via Mongoose).
 It supports full CRUD: list, get one, create, replace, update and delete.
 
+> **Note for the grader — you need your own MongoDB connection string.**
+> For security, my database credentials are **not** included in this repository (`.env` is excluded by `.gitignore`).
+> To run the project, create a `.env` file and put **your own** MongoDB URI in it (free MongoDB Atlas cluster or local MongoDB) — see [Setup](#setup), step 2.
+> The database and the `notes` collection are created automatically on the first request.
+> Proof that every route works against my own Atlas database is in `test-results.json` and `test-results.png` (see [Testing](#testing)).
+
 ## Tech stack
 
 - Node.js 20+ and Express 5
@@ -19,6 +25,8 @@ rest-api-project/
 ├── .env.example                         # template for .env (no real secrets)
 ├── .gitignore                           # excludes node_modules and .env
 ├── notes-api.postman_collection.json    # Postman / Thunder Client tests
+├── test-results.json                    # Newman run report (test evidence)
+├── test-results.png                     # screenshot of the test run
 ├── package.json
 └── README.md
 ```
@@ -31,24 +39,28 @@ rest-api-project/
 npm install
 ```
 
-**2. Create the `.env` file**
+**2. Create the `.env` file with your own MongoDB connection string**
 
-Copy the template:
+The real `.env` is not in the repository, so you must create it. Copy the template:
 
 ```bash
 cp .env.example .env
 ```
 
-Then open `.env` and replace the placeholders with a real MongoDB connection string:
+Then open `.env` and replace the placeholders with **your own** MongoDB connection string:
 
 ```
 PORT=3000
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/rest_api_project
 ```
 
-- `rest_api_project` at the end is the database name. MongoDB creates it automatically on the first insert.
-- On MongoDB Atlas, your IP must be allowed under **Network Access**.
-- A local MongoDB also works: `MONGODB_URI=mongodb://127.0.0.1:27017/rest_api_project`
+Two ways to get one:
+
+- **MongoDB Atlas (free):** create a cluster, add a database user under **Database Access**, allow your IP under **Network Access**, then click **Connect → Drivers** and copy the string. Replace `<user>` and `<password>` with that user's credentials.
+- **Local MongoDB:** if MongoDB is installed on your machine, use
+  `MONGODB_URI=mongodb://127.0.0.1:27017/rest_api_project`
+
+`rest_api_project` at the end is the database name. MongoDB creates it automatically on the first insert — nothing to set up by hand.
 
 **3. Start the server**
 
@@ -316,4 +328,17 @@ The same collection can be run from the terminal with Newman:
 
 ```bash
 npx newman run notes-api.postman_collection.json
+```
+
+### Test evidence
+
+The collection was run against my MongoDB Atlas database: **16 requests, 34 assertions, 0 failures**.
+
+- `test-results.json` — full Newman report (every request, status code and assertion)
+- `test-results.png` — screenshot of the run summary
+
+To regenerate the report:
+
+```bash
+npx newman run notes-api.postman_collection.json -r cli,json --reporter-json-export test-results.json
 ```
